@@ -1,30 +1,55 @@
 fetch("http://localhost:3000/api/products/")
-  .then((res) => res.jason)
-  .then((data) => addProducts(data));
+  .then((response) => {
+    return response.json();
+  })
+  .then((kanap) => {
+    return produitAccueil(kanap);
+  });
 
-function addProducts(donnees) {
-  const id = donnees[0]._id;
+/*creation d'une fonction pour récupérer les données*/
 
-  const anchor = makeAnchor(id);
-  appendChildren(anchor);
+function produitAccueil(array) {
+  //une boucle pour recuperer les données pour chaque produit
+  array.forEach((array) => {
+    const id = array._id;
+
+    // variable pour créer la balise alt
+    const aHref = document.createElement("a");
+    aHref.href = "./product.html?id=" + id;
+
+    // variable pour créer la balise article
+    const article = document.createElement("article");
+
+    // donnée et détail pour l'image
+    const image = document.createElement("img");
+    image.src = array.imageUrl;
+    image.alt = array.altTxt + " , " + array.name;
+
+    // donnée et détail dans la balise h3
+    const h3 = document.createElement("h3");
+    h3.classList.add("productName");
+    h3.textContent = array.name;
+
+    // donné et détail dans la balise p
+    const p = document.createElement("p");
+    p.classList.add("productDescription");
+    p.textContent = array.description;
+
+    // appel de la fonction afin de montrer les enfants du parent #Items
+    createTagElement(aHref, article, image, h3, p);
+  });
 }
 
-function makeAnchor(id) {
-  const anchor = document.createElement("a");
-  anchor.href = "./product.html" + id;
-  return anchor;
-}
+/*Fonction qui permet de donner des enfants au parent #items afin
+de le rendre visible dans le code html dans le DOM*/
 
-function appendChildren(anchor) {
+function createTagElement(aHref, article, image, h3, p) {
   const items = document.querySelector("#items");
   if (items != null) {
-    items.appendChild(anchor);
+    items.appendChild(aHref);
+    aHref.appendChild(article);
+    article.appendChild(image);
+    article.appendChild(h3);
+    article.appendChild(p);
   }
-}
-
-function makeImage(imageUrl, altTxt) {
-  const image = document.createElement("img");
-  image.src = imageUrl;
-  image.alt = altTxt;
-  return image;
 }
