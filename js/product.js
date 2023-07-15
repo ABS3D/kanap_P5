@@ -122,19 +122,24 @@ const ajouter = async (quantity, color) => {
 // ecoute d'evenements pour ajouter au panier
  
 const bouton = document.getElementById("addToCart");
-  if (bouton != null) {
-    bouton.addEventListener("click", () => {
-      const colors = document.getElementById("colors").value;
-      const quantite = document.getElementById("quantity").value;
-      if (colors == null || colors === "" || quantite == null || quantite == 0 || quantite >= 101) {
-        alert("SVP choissez une couleur et une quantité max 100, merci.");
-        return bouton;
-      } 
-      else{
-        ajouter(quantite, colors)
-      }
-    });
-  }
+if (bouton != null) {
+  bouton.addEventListener("click", () => {
+    const colors = document.getElementById("colors").value;
+    const quantite = document.getElementById("quantity").value;
+    if (
+      colors == null ||
+      colors === "" ||
+      quantite == null ||
+      quantite < 1 || // Vérification pour une quantité inférieure à 1
+      quantite >= 101
+    ) {
+      alert("Veuillez choisir une couleur et une quantité supérieure à zéro et inférieure à 101, merci.");
+      return bouton;
+    } else {
+      ajouter(quantite, colors);
+    }
+  });
+}
 
 
 createProductItem();
