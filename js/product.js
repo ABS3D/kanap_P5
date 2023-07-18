@@ -120,7 +120,7 @@ const ajouter = async (quantity, color) => {
 };
 
 // ecoute d'evenements pour ajouter au panier
- 
+
 const bouton = document.getElementById("addToCart");
 if (bouton != null) {
   bouton.addEventListener("click", () => {

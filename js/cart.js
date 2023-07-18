@@ -4,14 +4,14 @@ const dataStorage = JSON.parse(localStorage.getItem("panier"));
 
 function retrieveProductData(id) {
   return fetch(`http://localhost:3000/api/products/${id}`)
-    .then(function(response) {
+    .then(function (response) {
       if (response.ok) {
         return response.json();
       } else {
         throw new Error("Erreur lors de la récupération des données du produit");
       }
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.error(error);
     });
 }
@@ -24,7 +24,7 @@ function retrieveProductData(id) {
 
 function createCardProduct(data) {
   retrieveProductData(data.id)
-    .then(function(product) {
+    .then(function (product) {
       const cardItem = document.getElementById("cart__items");
       const articleItem = document.createElement("article");
       articleItem.setAttribute("class", "cart__item");
@@ -35,7 +35,7 @@ function createCardProduct(data) {
       showInfosItem(articleItem, product.name, data.color, product.price);
       showSettingsItem(articleItem, data.quantity);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.error(error);
     });
 }
@@ -158,34 +158,34 @@ addEventListener("input", function () {
 });
 
 // Pour chaque produit, si un clic est effectué sur le bouton de suppression, le supprimer
-  document.addEventListener("DOMContentLoaded", function() {
-    const cartItemsContainer = document.getElementById("cart__items");
-  
-    cartItemsContainer.addEventListener("click", function(e) {
-      if (e.target.classList.contains("deleteItem")) {
-        const articleDOM = e.target.closest("article");
-        const productId = articleDOM.getAttribute("data-id");
-        const productColor = articleDOM.getAttribute("data-color");
-        const productIndex = dataStorage.findIndex(
-          (obj) => obj.id == productId && obj.color == productColor
-        );
-  
-        if (productIndex !== -1) {
-          dataStorage.splice(productIndex, 1);
-          articleDOM.remove();
-          if (dataStorage.length === 0) {
-            localStorage.removeItem("panier");
-          } else {
-            localStorage.setItem("panier", JSON.stringify(dataStorage));
-          }
-          totalRefresh();
-          console.log("Produit supprimé du panier");
-          location.reload();
+document.addEventListener("DOMContentLoaded", function () {
+  const cartItemsContainer = document.getElementById("cart__items");
+
+  cartItemsContainer.addEventListener("click", function (e) {
+    if (e.target.classList.contains("deleteItem")) {
+      const articleDOM = e.target.closest("article");
+      const productId = articleDOM.getAttribute("data-id");
+      const productColor = articleDOM.getAttribute("data-color");
+      const productIndex = dataStorage.findIndex(
+        (obj) => obj.id == productId && obj.color == productColor
+      );
+
+      if (productIndex !== -1) {
+        dataStorage.splice(productIndex, 1);
+        articleDOM.remove();
+        if (dataStorage.length === 0) {
+          localStorage.removeItem("panier");
+        } else {
+          localStorage.setItem("panier", JSON.stringify(dataStorage));
         }
+        totalRefresh();
+        console.log("Produit supprimé du panier");
+        location.reload();
       }
-    });
+    }
   });
-  
+});
+
 
 const totalRefresh = async () => {
   let totalCartPrice = 0;
@@ -227,7 +227,7 @@ function verifyFirstName(prenom) {
 
 function verifyLastName(nom) {
   let fieldIsCorrect = false;
-  const lastNameRegex = /^[A-Za-zéèêëàâîïôöûü-]+$/; 
+  const lastNameRegex = /^[A-Za-zéèêëàâîïôöûü-]+$/;
   if (lastNameRegex.test(nom)) {
     fieldIsCorrect = true;
   } else {
@@ -249,7 +249,7 @@ function verifyAddress(adresse) {
 
 function verifyCity(ville) {
   let fieldIsCorrect = false;
-  const cityRegex = /^[A-Za-zéèêëàâîïôöûü-]+$/; 
+  const cityRegex = /^[A-Za-zéèêëàâîïôöûü-]+$/;
   if (cityRegex.test(ville)) {
     fieldIsCorrect = true;
   } else {
@@ -335,9 +335,9 @@ function createBodyRequest(prenom, nom, adresse, ville, mail) {
 
 function displayProducts() {
   if (localStorage.length !== 0) {
-    dataStorage.forEach(function(item) {
+    dataStorage.forEach(function (item) {
       retrieveProductData(item.id)
-        .then(function(product) {
+        .then(function (product) {
           const cardItem = document.getElementById("cart__items");
           const articleItem = document.createElement("article");
           articleItem.setAttribute("class", "cart__item");
@@ -348,7 +348,7 @@ function displayProducts() {
           showInfosItem(articleItem, product.name, item.color, product.price, item.quantity);
           showDeletedProduct(articleItem);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error(error);
         });
     });

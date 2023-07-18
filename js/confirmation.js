@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const orderIdElement = document.getElementById("orderId");
 
   const orderId = retrieveOrderIdFromStorage(); // Récupère l'identifiant de la commande à partir des paramètres de l'URL
