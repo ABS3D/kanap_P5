@@ -1,13 +1,19 @@
 const dataStorage = JSON.parse(localStorage.getItem("panier"));
 
 // Récupère les données du produit depuis l'API
-async function retrieveProductData(id) {
-  try {
-    const response = await fetch(`http://localhost:3000/api/products/${id}`);
-    return response.json();
-  } catch (error) {
-    console.error("Erreur lors de la récupération des données du produit");
-  }
+
+function retrieveProductData(id) {
+  return fetch(`http://localhost:3000/api/products/${id}`)
+    .then(function(response) {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error("Erreur lors de la récupération des données du produit");
+      }
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
 }
 
 /*
@@ -15,18 +21,24 @@ async function retrieveProductData(id) {
  Renvoie une erreur console si la récupération n'est pas possible
  */
 // Crée l'article global qui contiendra le produit choisi
-const createCardProduct = async (data) => {
-  const product = await retrieveProductData(data.id);
-  const cardItem = document.getElementById("cart__items");
-  const articleItem = document.createElement("article");
-  articleItem.setAttribute("class", "cart__item");
-  articleItem.setAttribute("data-id", `${data.id}`);
-  articleItem.setAttribute("data-color", `${data.color}`);
-  cardItem.appendChild(articleItem);
-  showImageProduct(articleItem, product.altTxt, product.imageUrl);
-  showInfosItem(articleItem, product.name, data.color, product.price);
-  showSettingsItem(articleItem, data.quantity);
-};
+
+function createCardProduct(data) {
+  retrieveProductData(data.id)
+    .then(function(product) {
+      const cardItem = document.getElementById("cart__items");
+      const articleItem = document.createElement("article");
+      articleItem.setAttribute("class", "cart__item");
+      articleItem.setAttribute("data-id", `${data.id}`);
+      articleItem.setAttribute("data-color", `${data.color}`);
+      cardItem.appendChild(articleItem);
+      showImageProduct(articleItem, product.altTxt, product.imageUrl);
+      showInfosItem(articleItem, product.name, data.color, product.price);
+      showSettingsItem(articleItem, data.quantity);
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+}
 
 // Crée la partie de modification du produit
 function showSettingsItem(container, quantity) {
@@ -320,23 +332,29 @@ function createBodyRequest(prenom, nom, adresse, ville, mail) {
   return bodyContent;
 }
 
-// Fonction globale qui récupère les données de localStorage pour afficher les produits sur la page
+
 function displayProducts() {
   if (localStorage.length !== 0) {
-    dataStorage.forEach(async (item) => {
-      const product = await retrieveProductData(item.id);
-      const cardItem = document.getElementById("cart__items");
-      const articleItem = document.createElement("article");
-      articleItem.setAttribute("class", "cart__item");
-      articleItem.setAttribute("data-id", `${item.id}`);
-      articleItem.setAttribute("data-color", `${item.color}`);
-      cardItem.appendChild(articleItem);
-      showImageProduct(articleItem, product.altTxt, product.imageUrl);
-      showInfosItem(articleItem, product.name, item.color, product.price, item.quantity);
-      showDeletedProduct(articleItem); 
+    dataStorage.forEach(function(item) {
+      retrieveProductData(item.id)
+        .then(function(product) {
+          const cardItem = document.getElementById("cart__items");
+          const articleItem = document.createElement("article");
+          articleItem.setAttribute("class", "cart__item");
+          articleItem.setAttribute("data-id", `${item.id}`);
+          articleItem.setAttribute("data-color", `${item.color}`);
+          cardItem.appendChild(articleItem);
+          showImageProduct(articleItem, product.altTxt, product.imageUrl);
+          showInfosItem(articleItem, product.name, item.color, product.price, item.quantity);
+          showDeletedProduct(articleItem);
+        })
+        .catch(function(error) {
+          console.error(error);
+        });
     });
   }
   totalRefresh();
 }
+
 
 displayProducts();
