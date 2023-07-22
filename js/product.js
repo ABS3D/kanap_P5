@@ -137,6 +137,7 @@ if (bouton != null) {
       return bouton;
     } else {
       ajouter(quantite, colors);
+      alert("votre commande est ajouter au panier avec succes");
     }
   });
 }

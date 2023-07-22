@@ -134,28 +134,39 @@ function showDeletedProduct(container) {
   settingsDeleted.appendChild(deletedProduct);
 }
 
-// Écoute les modifications des entrées sur la page pour chaque produit, puis met à jour leur quantité
+// Écoute les modifications des entrées sur la page pour chaque produit,
 addEventListener("input", function () {
   let quantitySelector = document.getElementsByClassName("itemQuantity");
   for (let i = 0; i < quantitySelector.length; i++) {
-    quantitySelector[i].addEventListener("change", (e) => {
-      let productQuantity = e.target.value;
-      if (productQuantity == 0 || productQuantity >= 100) {
-        console.error("La quantité doit être comprise entre 1 et 100");
-        productQuantity = `${dataStorage[i].quantity}`;
-      } else {
-        dataStorage.map((obj) => {
-          if (obj.id == dataStorage[i].id && obj.color == dataStorage[i].color) {
-            obj.quantity = parseInt(productQuantity);
-          }
-        });
-        localStorage.setItem("panier", JSON.stringify(dataStorage));
-        totalRefresh();
-        console.log("Quantité mise à jour");
-      }
-    });
+    // Remove the previous event listener before adding a new one
+    quantitySelector[i].removeEventListener("change", handleChange);
+    quantitySelector[i].addEventListener("change", handleChange);
   }
 });
+
+function handleChange(e) {
+  let productQuantity = e.target.value;
+  const articleItem = e.target.closest(".cart__item");
+  const productId = articleItem.getAttribute("data-id");
+  const productColor = articleItem.getAttribute("data-color");
+  const productIndex = dataStorage.findIndex(
+    (obj) => obj.id === productId && obj.color === productColor
+  );
+
+  if (productQuantity < 1 || productQuantity > 100 || isNaN(productQuantity)) {
+    alert("La quantité doit être comprise entre 1 et 100");
+    productQuantity = dataStorage[productIndex].quantity;
+    location.reload();
+  } else {
+    dataStorage[productIndex].quantity = parseInt(productQuantity);
+    localStorage.setItem("panier", JSON.stringify(dataStorage));
+    totalRefresh();
+    console.log("Quantité mise à jour");
+  }
+}
+
+
+
 
 // Pour chaque produit, si un clic est effectué sur le bouton de suppression, le supprimer
 document.addEventListener("DOMContentLoaded", function () {
@@ -173,11 +184,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (productIndex !== -1) {
         dataStorage.splice(productIndex, 1);
         articleDOM.remove();
+
         if (dataStorage.length === 0) {
-          localStorage.removeItem("panier");
+          //localStorage.removeItem("panier");
+          localStorage.setItem("panier", JSON.stringify([]));
         } else {
           localStorage.setItem("panier", JSON.stringify(dataStorage));
         }
+
         totalRefresh();
         console.log("Produit supprimé du panier");
         location.reload();
@@ -187,6 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// Fonction de rafraîchissement du total du panier
 const totalRefresh = async () => {
   let totalCartPrice = 0;
   let totalCartQty = 0;
@@ -303,18 +318,33 @@ addEventListener("submit", function (e) {
   const adresse = e.target.address.value;
   const ville = e.target.city.value;
   const email = e.target.email.value;
-  if (
-    verifyFirstName(prenom) &&
-    verifyLastName(nom) &&
-    verifyAddress(adresse) &&
-    verifyCity(ville) &&
-    verifyEmail(email)
-  ) {
-    sendRequestToApi(createBodyRequest(prenom, nom, adresse, ville, email));
-  } else {
-    console.error("Tous les champs ne sont pas correctement remplis");
+
+  if (dataStorage.length === 0) {
+    alert("Le panier est vide. Ajoutez des produits avant de passer commande.");
+    return;
+  }
+
+  try {
+    if (
+      verifyFirstName(prenom) &&
+      verifyLastName(nom) &&
+      verifyAddress(adresse) &&
+      verifyCity(ville) &&
+      verifyEmail(email)
+    ) {
+      if (dataStorage && dataStorage.length > 0 && typeof createBodyRequest === "function") {
+        sendRequestToApi(createBodyRequest(prenom, nom, adresse, ville, email));
+      } else {
+        alert("Erreur lors de la commande. Veuillez réessayer plus tard.");
+      }
+    } else {
+      alert("Tous les champs ne sont pas correctement remplis");
+    }
+  } catch (error) {
+    
   }
 });
+
 
 //Crée l'objet à envoyer dans le corps de la requête
 function createBodyRequest(prenom, nom, adresse, ville, mail) {
